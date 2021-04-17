@@ -55,6 +55,7 @@ def home():
 def about():
     return '<h1>About Me</h1><p>My name is Teddy and I am a CS student at HSU</p>'
 
+# runs the query to display all tracks
 @app.route('/tracks')
 def get_all_tracks():
     result = database.run_query("SELECT * FROM tracks")
@@ -65,6 +66,7 @@ def get_all_tracks_html():
     result = database.run_query("SELECT * FROM tracks")
     return render_template("all_tracks.html", data=result)
 
+# locates the tracks by name
 @app.route('/tracks/byName/<search_string>')
 def search_tracks(search_string):
     sql = "SELECT * FROM tracks WHERE instr(Name, ?)>0"
@@ -72,6 +74,39 @@ def search_tracks(search_string):
     result = database.run_query(sql, params)
     return return_as_json(result)
 
+# locates the tracks by artist
+@app.route('/tracks/byArtist/<search_string>')
+def search_tracks_artist(search_string):
+    sq1 = "SELECT * FROM tracks WHERE instr(Composer, ?)>0"
+    params = (search_string, )
+    result = database.run_query(sq1, params)
+    return return_as_json(result)
+
+# locates the tracks by genre
+@app.route('/tracks/byGenre/<search_string>')
+def search_tracks_genre(search_string):
+    sq1 = "SELECT * FROM tracks WHERE instr(GenreId, ?)>0"
+    params = (search_string, )
+    result = database.run_query(sq1, params)
+    return return_as_json(result)
+
+# locates tracks by year
+@app.route('/tracks/byYear/<search_string>')
+def search_tracks_year(search_string):
+    sq1 = "SELECT * FROM tracks WHERE instr(Name, ?)>0"
+    params = (search_string, )
+    result = database.run_query(sq1, params)
+    return return_as_json(result)
+
+# locates tracks by album
+@app.route('/tracks/byAlbum/<search_string>')
+def search_tracks_album(seach_string):
+    sq1 = "SELECT * FROM tracks WHERE instr(AlbumId, ?)>0"
+    params = (search_string, )
+    result = database.run_query(sq1, params)
+    return return_as_json(result)
+
+# building the login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     session['logged_in'] = False
@@ -123,4 +158,4 @@ def create_customer():
               )
     id = database.run_insert(sql, params)
     return jsonify({'id': id })
-    aasdfasdfasdfasdfasdfasdfadsfasfd
+    
