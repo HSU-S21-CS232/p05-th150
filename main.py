@@ -7,12 +7,12 @@ Goal: flesh out an API for the chinook music store.
 # Basic Requirements
 * Expose an endpoint for searching for music:
     * by name (implemented)
-    * by artist
-    * by genre
-    * by year
-    * by album
+    * by artis(implemented)
+    * by genre (implemented)
+    * by year (implemented)
+    * by album (implemented)
 * Be able to add tracks to a "shopping cart"
-    * We need to be able to add, remove, and clear a cart
+    * We need to be able to add, remove, and clear a cart (implemented)
 * Be able to "check out"
     * Convert the current shopping cart into an invoice in the DB
         *This will also create one or more invoice items
@@ -105,6 +105,38 @@ def search_tracks_album(seach_string):
     params = (search_string, )
     result = database.run_query(sq1, params)
     return return_as_json(result)
+
+# add items to shopping cart
+@app.route('cart/add/<search_string>', methods=['POST'])
+def add_to_cart(search_string):
+    sq1 = """INSERT INTO cart 
+             SELECT Name, TrackId, UnitPrice
+             From tracks
+             WHERE INSTR(TrackId, ?)>0
+             LIMIT 1
+          """
+    params = (search_string, )
+    result = database.run_insert(sq1, params)
+    return jsonify({'result': result})
+
+# deletes items from shopping cart
+@app.route('/cart/delete/<search_string>', methods=['DELETE'])
+def remove_from_cart(search_string):
+    sq1 = """DELETE FROM cart
+             WHERE TrackId = ?
+          """
+    params = (search_string, )
+    result = database.run_delete(sq1, params)
+    return jsonify({'result', result})
+
+# clears out all of the items in the shopping cart
+@app.route('/cart/clear', methods=['DELETE'])
+def clear_cart(search_string):
+    sq1 = "DELETE FROM cart"
+    result = database.run_clear(sq1)
+    return jsonify({'result', result})
+
+#
 
 # building the login
 @app.route('/login', methods=['GET', 'POST'])
