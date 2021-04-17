@@ -14,7 +14,7 @@ Goal: flesh out an API for the chinook music store.
 * Be able to add tracks to a "shopping cart"
     * We need to be able to add, remove, and clear a cart (implemented)
 * Be able to "check out"
-    * Convert the current shopping cart into an invoice in the DB
+    * Convert the current shopping cart into an invoice in the DB (implemented)
         *This will also create one or more invoice items
 
 # Additional Requirements (options, do what you find interesting)
@@ -136,7 +136,41 @@ def clear_cart(search_string):
     result = database.run_clear(sq1)
     return jsonify({'result', result})
 
-#
+# checking out
+@app.route('/cart/checkout/<search_string>', methods=['GET', 'POST']) 
+def checkout(search_string):
+    # if session['logged_in'] == False:
+    #     abort(777, description="Not logged in.")
+    
+    total = database.run_total("""SELECT 
+                                    SUM(UnitPrice)
+                                  FROM 
+                                    cart""")
+    sql = """INSERT INTO invoices (
+                        CustomerId,
+                        InvoiceDate,
+                        BillingAddress,
+                        BillingCity,
+                        BillingState,
+                        BillingCountry,
+                        BillingPostalCode,
+                        Total)
+                        VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)"""
+    params = (request.values['CustomerId'], 
+              request.values['InvoiceDate'], 
+              request.values['BillingAddress'], 
+              request.values['BillingCity'],
+              request.values['BillingState'],
+              request.values['BillingCountry'],
+              request.values['BillingPostalCode'],
+              total)
+              
+    database.run_insert(sql, params)
+
+    sql2 = "SELECT * FROM invoices WHERE CustomerId = ?"
+    params2 = (search_string, )
+    result = database.run_query(sql2, params2)
+    return return_as_json(result)
 
 # building the login
 @app.route('/login', methods=['GET', 'POST'])
@@ -188,6 +222,6 @@ def create_customer():
               request.values['Fax'],
               request.values['Email']
               )
-    id = database.run_insert(sql, params)
-    return jsonify({'id': id })
+    result = database.run_insert(sql, params)
+    return jsonify({'result': result })
     
