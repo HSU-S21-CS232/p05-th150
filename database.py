@@ -22,3 +22,25 @@ def run_insert(sql, params):
     cursor.close()
     db.close()
     return id
+
+def run_delete_cart(sq1, params):
+    db = sqlite3.connect('chinook.db')
+    db.row_factory = sqlite3.Row
+    cursor = db.cursor()
+    cursor.execute(sq1, params)
+    id = cursor.lastrowid
+    db.commit()
+    cursor.close()
+    db.close()
+    return result
+
+def run_remove_cart(sq1, params):
+    db = sqlite3.connect('chinook.db')
+    db.row_factory = sqlite3.Row
+    cursor = db.cursor()
+    cursor.execute(sq1, params)
+    id = cursor.lastrowid
+    db.commit()
+    cursor.close()
+    db.close()
+    return result
